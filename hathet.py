@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.stats import norm
 
+
+
 class Option:
     def __init__(self, right:str ,strike:float ,expiry:str, pos:int):
         #call vayg put
