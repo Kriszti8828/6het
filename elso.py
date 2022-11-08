@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy.stats import norm
 from matplotlib import pyplot as plt
 from hathet import Option
@@ -43,8 +44,8 @@ N=250
 S0=100
 spots=gb.generate(S0 ,0.,sigma,1,N)
 times=np.arange(0,1,1/N)
-plt.plot(times,spots)
-plt.show()
+#plt.plot(times,spots)
+#plt.show()
 
 opt=Option("C", S0,None,1)
 
@@ -59,3 +60,14 @@ for (t,S) in zip(times, spots):
 
 plt.plot(times, np.array(prices))
 plt.show()
+
+
+df= pd.DataFrame({"time":times, "spot":spots})
+
+K=100
+def calcPrice(row):
+    opt=Option("C", K ,None ,1)
+    vola=0.3
+    return opt.calcPrice(row.spot, 1-row.time,vola)
+
+df["price"]=df.apply(calcPrice, axis=1)    #soronként
