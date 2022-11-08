@@ -58,8 +58,8 @@ for (t,S) in zip(times, spots):
     prices.append(price)
     deltas.append(delta)
 
-plt.plot(times, np.array(prices))
-plt.show()
+#plt.plot(times, np.array(prices))
+#plt.show()
 
 
 df= pd.DataFrame({"time":times, "spot":spots})
@@ -71,3 +71,5 @@ def calcPrice(row):
     return opt.calcPrice(row.spot, 1-row.time,vola)
 
 df["price"]=df.apply(calcPrice, axis=1)    #soronként
+df.price.plot
+plt.show()
