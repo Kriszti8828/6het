@@ -1,0 +1,64 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+from Option import Option
+
+filename="KO.csv"
+df=pd.read_csv(filename)
+
+df.describe()
+print(df.columns)
+
+
+
+#piaci árakból volatilitás számolása - bs-ből
+
+#calc time to expiry
+df['date']=pd.to_datetime(df["date"])
+df['expiry']=pd.to_datetime(df['expiry'])
+df["daysToExp"]=(df.expiry-df.date).dt.days
+df=df.set_index("date")
+
+print(df[:6])
+
+#plot forward price vs time, median azért hogy az outlier ne zavarjon be
+df.groupby(df.index).forward_price.median().plot()
+plt.show()
+
+#calc implied vola and greeks
+
+def calcvolamid(row):
+    opt=Option(row.cp_flag, row.strike, row.expiry,1)
+    if row.forward_price*row.daysToExp*row.mid>0:
+        return opt.calcVola(row.forward_price, row.daysToExp/365,row.mid)
+    else:
+        return np.nan
+
+#ebből a listából az összes előforduló értéket kiírja: df.daysToExp.unique()
+
+df0=df[df.index<"2018-02-01"]
+
+#calc vola
+df0.loc[:,"implied_vola_mid"]=df0.apply(calcvolamid, axis=1)
+print(df0)
+
+#seleting one single option contract
+symbol="KO 180323C48000"
+df_=df0[df0.symbol==symbol]
+
+#df_[["implied_vola_mid", 'implied_vola_bid', 'implied_vola_ask']].plot()
+
+#volat smiley
+dates=df0.index.unique()
+
+#example
+#df_df0[df0.index==dates[23]]
+#df_df0[df0.daysTpExp==102]
+
+#filtering out lagged data
+date=df_.index[0]
+df_=df_[df_.last_date==date]
+df_.groupby(df_.strike).implied_vola_mid.median().plot()
+plt.show()
